@@ -1,0 +1,21 @@
+# Compilación
+build/
+*.exe
+
+# Temporales y cachés
+tmp/
+**/__pycache__/
+*.py[cod]
+
+# Configuración local de agentes
+.agents/
+.codex/
+skills-lock.json
+
+# Material interno o histórico
+docs/archive/
+docs/superpowers/
+docs/compliance-correction-design.md
+
+# Enunciado del curso: no es parte del código del equipo
+Proyecto 1 - Computación Paralela y Distribuida (1).pdf
