@@ -1,0 +1,10 @@
+campaign_timestamp=2026-09-22T10:54:22-06:00
+platform=Windows-11-10.0.26200-SP0
+machine=AMD64
+logical_cpu_count=32
+python=3.13.14
+compiler=g++ (Rev3, Built by MSYS2 project) 16.2.0
+seed=42
+dt_seconds=1/60
+execution_order=serial
+raw_outliers=preserved
