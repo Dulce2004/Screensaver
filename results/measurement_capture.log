@@ -1,0 +1,31 @@
+$ C:\UVG\Semestre8\CC - Programacion Paralela y Distribuida\Proyecto\Ver2\bubble_screensaver\build\BubbleScreensaver.exe --benchmark 10000 42 50 --repeat 1
+Mode: benchmark
+Implementation: sequential
+Threads: 1
+N: 10000
+Seed: 42
+Steps: 50
+Repeat: 1
+Delta time (s): 0.01666666667
+Initial checksum: 0x4185A87E5FD3B824
+Final checksum: 0xA911F6C824839E9E
+Total time (ms): 1017.839700
+Average step time (ms): 20.356794
+Time per element per step (ns): 2035.679400
+
+$ C:\UVG\Semestre8\CC - Programacion Paralela y Distribuida\Proyecto\Ver2\bubble_screensaver\build\BubbleScreensaverOpenMP.exe --benchmark-parallel 10000 42 50 4 --repeat 1
+Mode: benchmark-parallel
+Implementation: parallel
+Threads: 4
+N: 10000
+Seed: 42
+Steps: 50
+Repeat: 1
+Delta time (s): 0.01666666667
+Initial checksum: 0x4185A87E5FD3B824
+Final checksum: 0xA911F6C824839E9E
+Total time (ms): 410.924200
+Average step time (ms): 8.218484
+Time per element per step (ns): 821.848400
+OpenMP strategy: persistent parallel region
+OpenMP processors available: 32
