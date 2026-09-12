@@ -2,15 +2,12 @@
 
 ## Ambiente
 
-- Fecha: 22 de septiembre de 2026, zona America/Guatemala.
 - Sistema: Windows 11, AMD64, 32 procesadores lógicos informados.
 - Compilador: GCC MSYS2 UCRT64 16.2.0, C++17 y OpenMP.
 - Python: 3.13.14.
 - Seed: 42; paso físico: 1/60 s; ejecuciones seriales para evitar interferencia entre procesos.
 - Se preservaron todas las observaciones primarias, sin eliminar outliers.
 
-El archivo `results/environment.txt` conserva el ambiente registrado por el
-script, no una transcripción manual.
 
 ## Pruebas automáticas
 

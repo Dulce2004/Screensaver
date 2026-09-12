@@ -1,3 +1,8 @@
+/**
+ * @file csv.cpp
+ * @brief Validación de esquemas y escritura durable de mediciones CSV.
+ */
+
 #include "bubbles/csv.hpp"
 
 #include "bubbles/generation.hpp"
@@ -75,6 +80,11 @@ bool appendBenchmarkCsv(const std::string& path,
 
 namespace {
 
+/**
+ * @brief Divide una fila del esquema controlado, que no admite comillas.
+ * @param row Fila CSV sin salto final.
+ * @return Campos separados por comas, incluidos los campos vacíos.
+ */
 std::vector<std::string> splitSimpleCsvRow(const std::string& row) {
     // El esquema suplementario solo contiene numeros y etiquetas sin comas;
     // por tanto no necesita comillas CSV. Mantener este parser limitado evita
@@ -93,6 +103,12 @@ std::vector<std::string> splitSimpleCsvRow(const std::string& row) {
     return fields;
 }
 
+/**
+ * @brief Compara la clave de configuración de una fila FPS.
+ * @param fields Campos de una fila existente.
+ * @param result Configuración nueva que se desea insertar.
+ * @return `true` cuando implementación, hilos, N, seed y repetición coinciden.
+ */
 bool isSameFpsConfiguration(const std::vector<std::string>& fields,
                             const FpsResult& result) {
     if (fields.size() != 24) {

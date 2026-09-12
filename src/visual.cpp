@@ -1,3 +1,8 @@
+/**
+ * @file visual.cpp
+ * @brief Modos visual interactivo y campaña controlada de FPS.
+ */
+
 #include "bubbles/modes.hpp"
 
 #include "bubbles/csv.hpp"
@@ -20,6 +25,11 @@
 namespace bubbles {
 namespace {
 
+/**
+ * @brief Actualiza física, dibuja y presenta exactamente un cuadro.
+ * @param bubbles Estado físico y visual que se modifica.
+ * @param previousTime Instante del cuadro anterior; recibe el instante actual.
+ */
 void executeVisualFrame(std::vector<Bubble>& bubbles, double& previousTime) {
     const double currentTime = rendererTime();
     const double deltaTime = currentTime - previousTime;

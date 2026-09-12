@@ -1,3 +1,8 @@
+/**
+ * @file cli.cpp
+ * @brief Análisis defensivo de argumentos y construcción de ProgramOptions.
+ */
+
 #include "bubbles/cli.hpp"
 
 #include "config.hpp"
@@ -36,6 +41,13 @@ void printUsage(std::ostream& output) {
 
 namespace {
 
+/**
+ * @brief Convierte un decimal completo a un entero de 64 bits sin signo.
+ * @param text Texto que no debe contener signo ni caracteres sobrantes.
+ * @param value Destino del valor convertido.
+ * @retval true La conversión consumió todo el texto sin overflow.
+ * @retval false El texto está vacío, no es decimal o queda fuera de rango.
+ */
 bool parseUnsigned64(std::string_view text, std::uint64_t& value) {
     if (text.empty()) {
         return false;
@@ -48,6 +60,7 @@ bool parseUnsigned64(std::string_view text, std::uint64_t& value) {
     return result.ec == std::errc{} && result.ptr == end;
 }
 
+/** @brief Convierte y valida la cantidad de burbujas permitida. */
 bool parseBubbleCount(std::string_view text,
                       std::size_t& bubbleCount,
                       std::string& errorMessage) {
@@ -67,6 +80,7 @@ bool parseBubbleCount(std::string_view text,
     return true;
 }
 
+/** @brief Convierte una semilla válida de 64 bits sin signo. */
 bool parseSeed(std::string_view text,
                std::uint64_t& seed,
                std::string& errorMessage) {
@@ -77,6 +91,7 @@ bool parseSeed(std::string_view text,
     return true;
 }
 
+/** @brief Convierte y valida la cantidad de pasos del benchmark. */
 bool parseSteps(std::string_view text,
                 std::uint64_t& steps,
                 std::string& errorMessage) {
@@ -93,6 +108,7 @@ bool parseSteps(std::string_view text,
     return true;
 }
 
+/** @brief Convierte y valida la cantidad solicitada de hilos OpenMP. */
 bool parseThreadCount(std::string_view text,
                       int& threadCount,
                       std::string& errorMessage) {
@@ -112,6 +128,7 @@ bool parseThreadCount(std::string_view text,
     return true;
 }
 
+/** @brief Convierte y valida el identificador positivo de repetición. */
 bool parseRepeat(std::string_view text,
                  std::uint64_t& repeat,
                  std::string& errorMessage) {
@@ -128,6 +145,7 @@ bool parseRepeat(std::string_view text,
     return true;
 }
 
+/** @brief Convierte y valida una duración de la campaña visual. */
 bool parseFpsPhaseSeconds(std::string_view text,
                           bool allowZero,
                           const char* fieldName,
@@ -148,6 +166,7 @@ bool parseFpsPhaseSeconds(std::string_view text,
     return true;
 }
 
+/** @brief Interpreta exclusivamente los literales `on` y `off`. */
 bool parseVSync(std::string_view text,
                 bool& enabled,
                 std::string& errorMessage) {
@@ -163,6 +182,7 @@ bool parseVSync(std::string_view text,
     return false;
 }
 
+/** @brief Combina el reloj y random_device para producir una semilla visual. */
 std::uint64_t createDefaultSeed() {
     // random_device aporta entropia del sistema cuando esta disponible. El reloj
     // evita repetir la semilla en implementaciones donde random_device sea fijo.

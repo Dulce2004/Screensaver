@@ -1,3 +1,8 @@
+/**
+ * @file main.cpp
+ * @brief Punto de entrada, despacho de modos y frontera global de excepciones.
+ */
+
 #include "bubbles/cli.hpp"
 #include "bubbles/modes.hpp"
 #include "bubbles/types.hpp"
@@ -7,6 +12,12 @@
 #include <new>
 #include <string>
 
+/**
+ * @brief Analiza la CLI y despacha el modo solicitado.
+ * @param argc Cantidad de argumentos del proceso.
+ * @param argv Valores de la línea de comandos.
+ * @return Un valor de bubbles::ExitCode convertido a `int`.
+ */
 int main(int argc, char** argv) {
     using namespace bubbles;
     try {

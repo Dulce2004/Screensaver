@@ -1,57 +1,97 @@
-# Screensaver de burbujas — Secuencial y OpenMP
+# Screensaver de burbujas con OpenMP
 
-Proyecto de Computación Paralela y Distribuida (UVG, Semestre 2, 2026),
-implementado en C++17 con OpenGL/GLFW/GLEW y OpenMP.
+Proyecto 1 de **Computación Paralela y Distribuida** (UVG, Semestre 2 de 2026).
+Implementa un screensaver en C++17 con una versión secuencial y otra paralela
+con OpenMP, renderizadas mediante OpenGL, GLFW y GLEW.
 
-El programa recibe `N`, genera burbujas reproducibles de varios colores y las
-dibuja sobre un fondo JPEG. Las burbujas rebotan en los bordes y entre sí; el
-título muestra FPS. También incluye un benchmark sin OpenGL para calcular
-speedup y eficiencia de la física con una comparación determinista.
+**C++17 · OpenMP · OpenGL 3.3 · GLFW · GLEW · PowerShell · Python**
 
-## Estructura
+## Descripción
 
-- `include/bubbles/`: contratos públicos y tipos.
-- `src/`: CLI, generación, física, OpenMP, CSV, renderizador y modos.
-- `tests/`: pruebas de comportamiento, colisiones, equivalencia y análisis.
-- `scripts/`: compilación, pruebas, campañas, análisis, informe y limpieza.
-- `results/`: evidencia primaria, resúmenes y figuras reproducibles.
-- `docs/`: diseño y fuentes auditables de los anexos.
-- `data/raw/Fondo.jpg`: textura del fondo.
-- `third_party/stb_image.h`: cargador de imágenes de Sean Barrett.
-- `Informe_Final.pdf`: copia de entrega del informe actualizado.
-- `output/pdf/Informe_Final.pdf`: salida canónica del generador.
+El programa recibe una cantidad `N` de burbujas, genera un estado reproducible
+y simula movimiento, rebotes contra los bordes y colisiones elásticas. La
+ventana utiliza un canvas de 800 × 600, muestra los FPS en el título y dibuja
+las burbujas sobre una textura de fondo.
+
+Además del modo visual, el proyecto incluye:
+
+- benchmark del kernel físico sin renderizado;
+- medición de speedup y eficiencia para 1, 2, 4 y 8 hilos;
+- campaña visual controlada para comparar FPS;
+- validación determinista mediante checksums;
+- pruebas automatizadas y evidencia reproducible en CSV.
+
+## Estructura del proyecto
+
+```text
+Screensaver/
+├── include/bubbles/        Interfaces públicas y tipos compartidos
+├── src/                    CLI, física, OpenMP, renderizado y medición
+├── tests/                  Pruebas C++ y análisis en Python
+├── scripts/                Compilación, pruebas, campañas y limpieza
+├── results/                CSV primarios, resúmenes, capturas y gráficas
+│   └── figures/            Figuras generadas por los analizadores
+├── docs/                   Informe y documentación técnica
+│   ├── Proyecto1-Paralela.docx
+│   ├── Proyecto1-Paralela.pdf
+│   ├── flowchart.md
+│   ├── fps-canonical-evidence.md
+│   ├── function-catalog.md
+│   └── test-log.md
+├── data/raw/Fondo.jpg      Textura utilizada por el modo visual
+├── third_party/stb_image.h Carga de la imagen de fondo
+├── Doxyfile                Configuración de documentación de la API
+└── build/                  Binarios locales generados; no se entrega
+```
 
 ## Requisitos
 
-Configuración probada: Windows 11, MSYS2 UCRT64, GCC 16.2.0.
+La configuración utilizada para las mediciones fue Windows 11 AMD64, MSYS2
+UCRT64 y GCC 16.2.0.
+
+Desde una terminal MSYS2 UCRT64:
 
 ```bash
 pacman -Syu
 pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-glfw mingw-w64-ucrt-x86_64-glew
 ```
 
-Agregue `C:\msys64\ucrt64\bin` al `PATH`. Los scripts de análisis e informe
-usan Python 3, matplotlib y ReportLab; Poppler permite verificar el PDF.
+También se requiere Python 3 con `matplotlib` para analizar las campañas. En
+PowerShell, agregue `C:\msys64\ucrt64\bin` al `PATH` antes de compilar.
 
-## Compilar y probar
+## Inicio rápido
 
-Desde PowerShell, en la raíz:
+Ejecute los comandos desde la raíz del proyecto:
 
 ```powershell
 .\scripts\build.ps1
 .\scripts\run_tests.ps1
 ```
 
-Los binarios se crean únicamente en `build/`. Ambas variantes usan
-`-Wall -Wextra -Wpedantic -Werror`; OpenMP se habilita solo en la paralela.
+La compilación crea dos ejecutables en `build/`:
 
-## Uso
+| Ejecutable | Implementación |
+| --- | --- |
+| `BubbleScreensaver.exe` | Secuencial |
+| `BubbleScreensaverOpenMP.exe` | Paralela con OpenMP |
+
+Ambas variantes se compilan con `-Wall -Wextra -Wpedantic -Werror`; la bandera
+`-fopenmp` se habilita únicamente para la variante paralela.
+
+## Modos de ejecución
+
+| Modo | Propósito |
+| --- | --- |
+| Visual | Ejecutar el screensaver hasta cerrar la ventana |
+| `--benchmark` | Medir únicamente la física secuencial |
+| `--benchmark-parallel` | Medir la física con OpenMP |
+| `--fps-supplementary` | Medir la experiencia visual en una ventana controlada |
 
 ```text
 build\BubbleScreensaver.exe <N> [seed]
-build\BubbleScreensaver.exe --benchmark <N> <seed> <steps> [--csv <file>] [--repeat <i>]
-build\BubbleScreensaverOpenMP.exe --benchmark-parallel <N> <seed> <steps> <threads> [--csv <file>] [--repeat <i>]
-build\BubbleScreensaver[OpenMP].exe --fps-supplementary <N> <seed> <threads> <vsync:on|off> <warmup_s> <measurement_s> --csv <file> --repeat <i>
+build\BubbleScreensaver.exe --benchmark <N> <seed> <steps> [--csv <archivo>] [--repeat <i>]
+build\BubbleScreensaverOpenMP.exe --benchmark-parallel <N> <seed> <steps> <threads> [--csv <archivo>] [--repeat <i>]
+build\BubbleScreensaver[OpenMP].exe --fps-supplementary <N> <seed> <threads> <vsync:on|off> <warmup_s> <measurement_s> --csv <archivo> --repeat <i>
 ```
 
 Ejemplos:
@@ -63,75 +103,106 @@ Ejemplos:
 .\build\BubbleScreensaverOpenMP.exe --benchmark-parallel 10000 42 500 4
 ```
 
-Ejecute el modo visual desde la raíz porque la textura usa la ruta relativa
+El modo visual debe iniciarse desde la raíz porque carga la ruta relativa
 `data/raw/Fondo.jpg`.
+
+## Diseño paralelo
+
+La simulación utiliza una rejilla uniforme para limitar la búsqueda de
+colisiones a la celda de cada burbuja y sus ocho vecinas. En la variante
+OpenMP:
+
+1. `omp for` distribuye el movimiento y la detección de pares.
+2. Cada hilo conserva una lista local de colisiones.
+3. Una región `critical` combina las listas.
+4. Una barrera garantiza que la lista compartida esté completa.
+5. Una región `single` ordena y resuelve los contactos de forma determinista.
+
+Las variantes secuencial y paralela reutilizan su espacio de trabajo durante
+todo el benchmark y producen el mismo checksum final para una configuración
+equivalente.
 
 ## Validación defensiva
 
 - `1 <= N <= 100000`.
 - `1 <= steps <= 10000000` y `N * steps <= 1000000000`.
-- `1 <= threads <= 256`, sin superar procesadores disponibles.
-- Enteros sin signo, sin texto sobrante ni overflow.
-- CSV con encabezado compatible y sin duplicados en la campaña FPS.
-- Ventana de medición FPS fija, visible y sin solicitud de cierre.
+- `1 <= threads <= 256`, sin superar los procesadores disponibles.
+- Rechazo de texto sobrante, enteros negativos y overflow.
+- Validación del encabezado CSV y de configuraciones FPS duplicadas.
+- Rechazo de mediciones si la ventana se minimiza, cambia de tamaño o se cierra.
 
-## Diseño paralelo
+## Reproducir la evidencia
 
-Una rejilla uniforme limita la detección a celdas vecinas. OpenMP reparte el
-movimiento y la detección mediante `omp for`; cada hilo acumula pares en un
-vector local. Una sección `critical` los reúne, una barrera espera a todos y
-`single` ordena y resuelve contactos, evitando carreras sobre las burbujas.
-La salida cuando ya no existen pares es colectiva. Secuencial y OpenMP
-reutilizan su workspace durante todo el benchmark y producen el mismo checksum.
+### Benchmark físico
 
-## Reproducir resultados
-
-La campaña física ejecuta 150 mediciones: tres tamaños, Secuencial 1T y OpenMP
-1/2/4/8T, diez repeticiones por configuración.
+La campaña canónica ejecuta 150 mediciones: tres tamaños de problema, una
+configuración secuencial, OpenMP con 1, 2, 4 y 8 hilos, y diez repeticiones por
+configuración.
 
 ```powershell
 py .\scripts\run_benchmark_campaign.py --overwrite
 py .\scripts\analyze_benchmarks.py
 ```
 
-La campaña visual ejecuta 60 ventanas: tres tamaños, Secuencial 1T y OpenMP
-4T, diez repeticiones, VSync ON, 1 s de calentamiento y 3 s medidos.
+### Campaña de FPS
+
+La campaña visual ejecuta 60 mediciones con tres tamaños, Secuencial 1T y
+OpenMP 4T, diez repeticiones, VSync activado, 1 s de calentamiento y 3 s de
+medición.
 
 ```powershell
 py .\scripts\run_fps_campaign.py --overwrite
 py .\scripts\analyze_fps.py
 py .\scripts\capture_measurement.py
-py .\scripts\build_report.py
 ```
 
-Para ejecutar el flujo completo:
+Para compilar, probar y reproducir ambas campañas:
 
 ```powershell
 .\scripts\run_all.ps1 -Overwrite
 ```
 
-Los datos primarios permanecen en `results/benchmark_raw.csv` y
-`results/fps_raw.csv`; los analizadores crean resúmenes y figuras. No se
-eliminan valores atípicos. Los FPS son evidencia suplementaria de experiencia,
-no el speedup del kernel.
+Los datos primarios se conservan en `results/benchmark_raw.csv` y
+`results/fps_raw.csv`. Los analizadores generan resúmenes y gráficas sin
+eliminar valores atípicos. Los FPS se reportan como evidencia de experiencia
+visual, no como sustituto del speedup del kernel.
 
-## Limpiar ejecutables
+## Resultados destacados
 
-El entregable no debe contener `.exe`:
+Resultados de la campaña física conservada actualmente en `results/`:
+
+| N | Mejor configuración OpenMP medida | Speedup | Eficiencia |
+| ---: | ---: | ---: | ---: |
+| 1,000 | OpenMP 1T | 0.990× | 0.990 |
+| 10,000 | OpenMP 8T | 2.526× | 0.316 |
+| 50,000 | OpenMP 8T | 4.265× | 0.533 |
+
+Los 30 grupos comparables de la campaña finalizaron con checksums coincidentes
+entre la versión secuencial y todas las configuraciones OpenMP.
+
+## Documentación
+
+| Archivo | Contenido |
+| --- | --- |
+| [Proyecto1-Paralela.pdf](docs/Proyecto1-Paralela.pdf) | Informe en formato de entrega |
+| [flowchart.md](docs/flowchart.md) | Fuente del diagrama de flujo |
+| [function-catalog.md](docs/function-catalog.md) | Catálogo auditable de funciones y tipos |
+| [test-log.md](docs/test-log.md) | Bitácora y evidencia de pruebas |
+| [fps-canonical-evidence.md](docs/fps-canonical-evidence.md) | Evidencia canónica de la campaña visual |
+
+### Generar la referencia Doxygen
+
+La API pública, los tipos compartidos y los contratos internos relevantes
+incluyen comentarios compatibles con Doxygen. Con Doxygen y Graphviz
+disponibles en el `PATH`, genere el sitio HTML mediante:
 
 ```powershell
-.\scripts\clean_generated.ps1
+doxygen Doxyfile
+Start-Process .\build\doxygen\html\index.html
 ```
 
-El script elimina ejecutables de la raíz y de `build/`; el código y la evidencia
-permiten regenerarlos.
+La salida se crea dentro de `build/doxygen/` y puede regenerarse en cualquier
+momento.
 
-## Procedencia y pendientes
-
-`stb_image.h` declara licencia MIT/dominio público. La procedencia exacta de
-`data/raw/Fondo.jpg` no quedó registrada y se trata como limitación; antes de
-una publicación externa conviene reemplazarla por un recurso propio o con
-licencia documentada.
-
-El enlace y el historial del repositorio se incorporarán al final, cuando el
-equipo indique el repositorio real. No se inventó historial Git.
+El código, los scripts y la evidencia permiten regenerar los binarios cuando
+sea necesario.

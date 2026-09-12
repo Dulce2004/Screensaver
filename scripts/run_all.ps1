@@ -21,8 +21,6 @@ try {
     }
     & py .\scripts\capture_measurement.py
     if ($LASTEXITCODE -ne 0) { throw 'Falló la captura de medición.' }
-    & py .\scripts\build_report.py
-    if ($LASTEXITCODE -ne 0) { throw 'Falló la construcción del informe.' }
 }
 finally {
     Pop-Location

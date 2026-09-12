@@ -1,3 +1,8 @@
+/**
+ * @file physics_openmp.cpp
+ * @brief Kernel físico paralelo mediante una región OpenMP persistente.
+ */
+
 #include "bubbles/physics.hpp"
 
 #ifdef BUBBLES_ENABLE_OPENMP

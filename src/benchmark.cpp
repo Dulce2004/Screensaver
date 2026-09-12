@@ -1,3 +1,8 @@
+/**
+ * @file benchmark.cpp
+ * @brief Medición aislada del kernel físico y persistencia de sus resultados.
+ */
+
 #include "bubbles/modes.hpp"
 
 #include "bubbles/csv.hpp"

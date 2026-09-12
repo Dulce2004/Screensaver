@@ -1,3 +1,8 @@
+/**
+ * @file generation.cpp
+ * @brief Generación pseudoaleatoria reproducible y checksum del estado físico.
+ */
+
 #include "bubbles/generation.hpp"
 
 #include "config.hpp"
@@ -18,6 +23,13 @@ namespace bubbles {
 
 namespace {
 
+/**
+ * @brief Convierte un color HSV a componentes RGB.
+ * @param hue Matiz normalizado en el intervalo `[0, 1]`.
+ * @param saturation Saturación normalizada.
+ * @param value Brillo normalizado.
+ * @return Componentes RGB normalizados.
+ */
 std::array<float, 3> hsvToRgb(float hue, float saturation, float value) {
     const float scaledHue = hue * 6.0F;
     const int sector = static_cast<int>(scaledHue) % 6;
@@ -123,6 +135,12 @@ std::vector<Bubble> generateBubbles(std::size_t bubbleCount,
 
 namespace {
 
+/**
+ * @brief Incorpora bytes de orden fijo a un hash FNV-1a.
+ * @param hash Acumulador modificado in situ.
+ * @param value Valor entero cuyos bytes menos significativos se consumen.
+ * @param byteCount Cantidad de bytes que se agregan.
+ */
 void appendHashBytes(std::uint64_t& hash, std::uint64_t value, int byteCount) {
     constexpr std::uint64_t fnvPrime = 1'099'511'628'211ULL;
     for (int byteIndex = 0; byteIndex < byteCount; ++byteIndex) {

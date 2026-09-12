@@ -1,3 +1,8 @@
+/**
+ * @file physics.cpp
+ * @brief Física secuencial, detección espacial y resolución de colisiones.
+ */
+
 #include "bubbles/physics.hpp"
 
 #include "config.hpp"
@@ -11,6 +16,13 @@
 namespace bubbles {
 namespace detail {
 
+/**
+ * @brief Mantiene una coordenada dentro de los límites físicos del canvas.
+ * @param position Coordenada que se corrige in situ.
+ * @param velocity Componente de velocidad que se refleja cuando hay impacto.
+ * @param radius Margen que debe conservar el centro respecto del borde.
+ * @param limit Longitud total del eje correspondiente.
+ */
 void reflectAtBorders(float& position, float& velocity, float radius, float limit) {
     const float minimum = radius;
     const float maximum = limit - radius;
@@ -194,6 +206,14 @@ int calculateCollisionSubsteps(const std::vector<Bubble>& bubbles, float deltaTi
     return std::clamp(required, 1, kMaximumCollisionSubsteps);
 }
 
+/**
+ * @brief Itera detección y resolución hasta estabilizar los contactos.
+ * @param bubbles Estado que se modifica.
+ * @param areaWidth Ancho del área física.
+ * @param areaHeight Alto del área física.
+ * @param grid Rejilla persistente reutilizada entre iteraciones.
+ * @param pairs Vector persistente reutilizado para los contactos.
+ */
 void resolveCollisionsSequential(std::vector<Bubble>& bubbles,
                                  float areaWidth,
                                  float areaHeight,
@@ -213,6 +233,15 @@ void resolveCollisionsSequential(std::vector<Bubble>& bubbles,
     }
 }
 
+/**
+ * @brief Ejecuta un paso secuencial completo, incluidos sus subpasos.
+ * @param bubbles Estado que se modifica.
+ * @param safeDelta Tiempo ya limitado, en segundos.
+ * @param areaWidth Ancho del área física.
+ * @param areaHeight Alto del área física.
+ * @param grid Rejilla persistente del benchmark.
+ * @param pairs Vector persistente de contactos.
+ */
 void advancePhysicsSequential(std::vector<Bubble>& bubbles,
                               float safeDelta,
                               float areaWidth,

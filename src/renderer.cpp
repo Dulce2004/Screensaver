@@ -1,3 +1,8 @@
+/**
+ * @file renderer.cpp
+ * @brief Inicialización RAII y operaciones del renderizador GLFW/OpenGL.
+ */
+
 #include "bubbles/renderer.hpp"
 
 #include "config.hpp"
@@ -45,11 +50,13 @@ bool gRendererSessionActive = false;
 
 void cleanupRendererImpl();
 
+/** @brief Reporta en stderr un error recibido desde GLFW. */
 void glfwErrorCallback(int errorCode, const char* description) {
     std::cerr << "Error de GLFW (" << errorCode << "): "
               << (description != nullptr ? description : "sin descripcion") << '\n';
 }
 
+/** @brief Conserva las últimas dimensiones lógicas válidas de la ventana. */
 void windowSizeCallback(GLFWwindow*, int width, int height) {
     // GLFW puede reportar cero durante ciertos estados de minimizacion. Se
     // conserva el ultimo canvas valido para no introducir limites degenerados.
@@ -59,18 +66,26 @@ void windowSizeCallback(GLFWwindow*, int width, int height) {
     }
 }
 
+/** @brief Actualiza el tamaño físico y el viewport de OpenGL. */
 void framebufferSizeCallback(GLFWwindow*, int width, int height) {
     gFramebufferWidth = std::max(width, 0);
     gFramebufferHeight = std::max(height, 0);
     glViewport(0, 0, gFramebufferWidth, gFramebufferHeight);
 }
 
+/** @brief Solicita el cierre de la ventana cuando se presiona Escape. */
 void keyCallback(GLFWwindow* window, int key, int, int action, int) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GLFW_TRUE);
     }
 }
 
+/**
+ * @brief Compila una etapa GLSL y muestra su log cuando falla.
+ * @param shaderType Tipo de shader aceptado por glCreateShader().
+ * @param source Código fuente GLSL terminado en nulo.
+ * @return Identificador OpenGL o `0` cuando no pudo compilarse.
+ */
 GLuint compileShader(GLenum shaderType, const char* source) {
     const GLuint shader = glCreateShader(shaderType);
     if (shader == 0) {
@@ -96,6 +111,13 @@ GLuint compileShader(GLenum shaderType, const char* source) {
     return 0;
 }
 
+/**
+ * @brief Compila, enlaza y valida un programa de vértice y fragmento.
+ * @param vertexShaderSource Fuente GLSL de la etapa de vértices.
+ * @param fragmentShaderSource Fuente GLSL de la etapa de fragmentos.
+ * @param programName Nombre usado en los mensajes de error.
+ * @return Identificador del programa o `0` cuando falla alguna etapa.
+ */
 GLuint createShaderProgram(const char* vertexShaderSource,
                            const char* fragmentShaderSource,
                            const char* programName) {
@@ -143,6 +165,7 @@ GLuint createShaderProgram(const char* vertexShaderSource,
     return 0;
 }
 
+/** @brief Construye el programa GLSL que dibuja círculos translúcidos. */
 GLuint createBubbleShaderProgram() {
     // La geometria se expresa como un circulo unitario. El vertex shader la
     // escala por radio, la desplaza al centro y convierte pixeles a NDC.
@@ -192,6 +215,7 @@ GLuint createBubbleShaderProgram() {
     return createShaderProgram(vertexShaderSource, fragmentShaderSource, "de burbujas");
 }
 
+/** @brief Construye el programa GLSL que muestrea la textura de fondo. */
 GLuint createBackgroundShaderProgram() {
     // El fondo ya esta expresado en coordenadas normalizadas [-1, 1], por lo
     // que cubre todo el canvas independientemente de su resolucion.
@@ -223,6 +247,7 @@ GLuint createBackgroundShaderProgram() {
     return createShaderProgram(vertexShaderSource, fragmentShaderSource, "de fondo");
 }
 
+/** @brief Crea el VAO/VBO de un círculo unitario para GL_TRIANGLE_FAN. */
 bool createCircleGeometry() {
     // GL_TRIANGLE_FAN requiere el centro, seguido por los puntos del perimetro.
     // El ultimo punto repite al primero para cerrar el circulo sin una grieta.
@@ -262,6 +287,7 @@ bool createCircleGeometry() {
     return glGetError() == GL_NO_ERROR;
 }
 
+/** @brief Crea el VAO/VBO del cuadrilátero de pantalla completa. */
 bool createBackgroundGeometry() {
     // Dos triangulos forman un quad de pantalla completa. Cada vertice contiene
     // posicion NDC (x, y) y coordenada de textura (u, v).
@@ -304,6 +330,12 @@ bool createBackgroundGeometry() {
     return glGetError() == GL_NO_ERROR;
 }
 
+/**
+ * @brief Decodifica un JPEG y crea su textura OpenGL RGBA.
+ * @param imagePath Ruta local terminada en nulo.
+ * @retval true La textura y sus mipmaps quedaron disponibles.
+ * @retval false La ruta, imagen, tamaño o carga OpenGL no fueron válidos.
+ */
 bool loadBackgroundTexture(const char* imagePath) {
     if (imagePath == nullptr || imagePath[0] == '\0') {
         std::cerr << "La ruta de la imagen de fondo esta vacia.\n";
@@ -385,6 +417,12 @@ bool loadBackgroundTexture(const char* imagePath) {
     return true;
 }
 
+/**
+ * @brief Inicializa la ventana, contexto, shaders, geometría y textura.
+ * @param config Opciones validadas de la sesión gráfica.
+ * @retval true Todos los recursos necesarios quedaron disponibles.
+ * @retval false La inicialización parcial debe liberarse con cleanupRendererImpl().
+ */
 bool initializeRendererImpl(const RendererConfig& config) {
     if (config.bubbleCount == 0 || config.bubbleCount > kMaximumBubbleCount) {
         std::cerr << "El modo visual no tiene una cantidad valida de burbujas.\n";
@@ -591,6 +629,11 @@ void render(const std::vector<Bubble>& bubbles) {
 
 namespace {
 
+/**
+ * @brief Libera de forma idempotente todos los recursos gráficos globales.
+ * @note Mantiene el contexto actual hasta destruir los objetos que dependen de
+ *       OpenGL y termina GLFW al final.
+ */
 void cleanupRendererImpl() {
     if (gWindow != nullptr) {
         glfwMakeContextCurrent(gWindow);
